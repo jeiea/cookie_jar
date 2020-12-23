@@ -5,7 +5,8 @@ import 'dart:io';
 /// for the sake of persistence, we use this class instead of it.
 class SerializableCookie {
   SerializableCookie(this.cookie) {
-    createTimeStamp = (new DateTime.now().millisecondsSinceEpoch ~/ 1000).toInt();
+    createTimeStamp =
+        (new DateTime.now().millisecondsSinceEpoch ~/ 1000).toInt();
   }
 
   /// Create a instance form Json string.
@@ -19,10 +20,12 @@ class SerializableCookie {
   /// Test the  whether this cookie is expired.
 
   bool isExpired() {
-    final DateTime t = new DateTime.now();
-    return (cookie.maxAge != null && cookie.maxAge < 1) ||
-        (cookie.maxAge != null && (t.millisecondsSinceEpoch ~/ 1000).toInt() - createTimeStamp >= cookie.maxAge) ||
-        (cookie.expires != null && !cookie.expires.isAfter(t));
+    final DateTime now = new DateTime.now();
+    if (cookie.maxAge != null) {
+      final elapsed = (now.millisecondsSinceEpoch ~/ 1000) - createTimeStamp;
+      return cookie.maxAge < 1 || cookie.maxAge <= elapsed;
+    }
+    return cookie.expires != null && !cookie.expires.isAfter(now);
   }
 
   /// Serialize the Json string.

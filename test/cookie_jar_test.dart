@@ -126,4 +126,31 @@ void main() async {
       expect(results.length, 0);
     });
   });
+
+  group('Expires and Max-Age specification >', () {
+    test('given expired cookies isExpired should return true', () {
+      final Cookie cookie = new Cookie('asdf', 'fdsa');
+      cookie.maxAge = 0;
+      expect(SerializableCookie(cookie).isExpired(), true);
+      cookie.maxAge = null;
+      cookie.expires = DateTime.now();
+      expect(SerializableCookie(cookie).isExpired(), true);
+    });
+
+    test('given alive cookies isExpired should return false', () {
+      final Cookie cookie = new Cookie('asdf', 'fdsa');
+      cookie.maxAge = 1;
+      expect(SerializableCookie(cookie).isExpired(), false);
+      cookie.maxAge = null;
+      cookie.expires = DateTime.now().add(Duration(seconds: 1));
+      expect(SerializableCookie(cookie).isExpired(), false);
+    });
+
+    test('Max-Age should override Expires', () {
+      final Cookie cookie = new Cookie('asdf', 'fdsa');
+      cookie.expires = DateTime.now().subtract(Duration(days: 1));
+      cookie.maxAge = 10;
+      expect(SerializableCookie(cookie).isExpired(), false);
+    });
+  });
 }
